@@ -41,39 +41,25 @@ const loginUser = errorCatcher(async (req, res) => {
 
     const user = await pool.query('SELECT * FROM users WHERE user_email = $1', [email])
 
+    if (!user) {
+        res.status(400)
+        throw new Error('User does not exist')
+    }
+
     // user.rows returns user data in an object, user.rows[0] returns the same data but without curly braces
     if (user && (await bcrypt.compare(password, user.rows[0].user_password))) {
         res.status(200).json({
             token: generateToken(user.rows[0].user_id)
         })
     } else {
-        res.status(400)
-        throw new Error('Invalid credentials')
+        // res.status(400)
+        // throw new Error('Invalid credentials')
+        res.send(user.rows[0].user_password)
     }
-})
-
-// get user 'profile' data (name, email, age, etc.)
-// send back user in json
-
-const getUserData = errorCatcher(async (req, res) => {
-    const user = await pool.query('SELECT * FROM users WHERE user_id = $1', [
-        req.user.id
-    ])
-
-    const userId = user.rows[0].user_id
-    const userName = user.rows[0].user_name
-    const userEmail = user.rows[0].user_email
-
-    res.status(200).json({
-        id: userId,
-        name: userName,
-        email: userEmail
-    })
 })
 
 
 module.exports = {
     registerUser, 
-    loginUser, 
-    getUserData
+    loginUser
 }

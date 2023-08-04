@@ -7,8 +7,9 @@ const {
     deleteTodo
 } = require('../controllers/todoController')
 const router = express.Router()
+const protect = require('../middleware/authMiddleware')
 
-router.route('/').get(getAllTodos).post(createTodo)
-router.route('/:id').get(getSpecificTodo).put(updateTodo).delete(deleteTodo)
+router.route('/').get(protect, getAllTodos).post(protect, createTodo)
+router.route('/:id').get(protect, getSpecificTodo).put(protect, updateTodo).delete(protect, deleteTodo)
 
 module.exports = router
